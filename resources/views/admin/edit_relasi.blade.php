@@ -42,7 +42,7 @@
                         <div class="form-group row">
                             <label for="alamat" class="col-md-3 col-form-label">Alamat</label>
                             <div class="col-md-7">
-                                <input type="text" class="form-control" id="alamat" name="alamat" maxlength="100" value="{{ $relasi->alamat }}" required>
+                                <input type="text" class="form-control" id="alamat" name="alamat" maxlength="100" value="{{ $relasi->alamat }}">
                             </div>
                         </div>
                         <div class="form-group row">

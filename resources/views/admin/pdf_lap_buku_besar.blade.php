@@ -47,13 +47,18 @@
             font-weight:bold;
         }
     </style>
-
+    @php
+        $nama_bln=array('Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember');
+    @endphp
     <table width="680px">
+        <tr valign="top">
+            <td><!--<img src="{{ asset('images/logo_login.png')}}" height="50px"> --></td>
+        </tr>
         <tr valign="top">
             <td align="center"><h3>LAPORAN BUKU BESAR</h3><br></td>
         </tr>
         <tr valign="top">
-            <td><b>Bulan : </b>{{$bln1}} @if($bln1!=$bln2) sampai {{$bln2}} @endif</td>
+            <td><b>Bulan : </b>{{$nama_bln[$bln1-1]}} @if($bln1!=$bln2) sampai {{$nama_bln[$bln2-1]}} @endif {{$thn}} </td>
         </tr>
         <tr valign="top">
             <td><b>Account : </b>{{$nacc}}</td>
@@ -81,7 +86,7 @@
         <tr>
             <td>{{FormatTgl($dt->tgl)}}</td>
             <td>{{$dt->bukti}}</td>
-            <td>{{$dt->ket}}</td>
+            <td>{{$dt->uraian}}</td>
             <td align="right">{{FormatAngka($dt->debet)}}</td>
             <td align="right">{{FormatAngka($dt->kredit)}}</td>
             <td align="right">{{FormatAngka($saldo)}}</td>

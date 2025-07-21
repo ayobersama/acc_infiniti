@@ -38,7 +38,7 @@
                                 <th width="30" class="text-right">No</th>
                                 <th width="100">Kode</th>
                                 <th width="100">Induk</th>
-                                <th width="400">Nama Relasi</th>
+                                <th width="400">Nama Account</th>
                                 <th width="100">Jenis</th>
                                 <th width="100">Kas/Bank</th>
                                 <th width="100">Header</th>

@@ -53,6 +53,9 @@
 
     <table width="680px">
         <tr valign="top">
+            <td><img src="{{ asset('images/logo_login.png')}}" height="50px"></td>
+        </tr>
+        <tr valign="top">
             <td align="center"><h3>LAPORAN REKAP BUKU BESAR</h3><br></td>
         </tr>
         <tr valign="top">
@@ -61,22 +64,31 @@
     </table>
     <table class="bordered" width="100%">
         <tr>
-            <th width="70px">Kode Acc</th>
-            <th width="180px">Nama Account</th>
-            <th width="80px">Saldo Awal</th>
-            <th width="80px">Debet</th>
-            <th width="80px">Kredit</th>
-            <th width="80px">Saldo Akhir</th>
+            <th width="50px" rowspan="2">Kode Acc</th>
+            <th width="160px" rowspan="2">Nama Account</th>
+            <th width="130px" colspan="2">Saldo Awal</th>
+            <th width="130px" colspan="2">Mutasi</th>
+            <th width="130px" colspan="2">Saldo Akhir</th>
+        </tr>
+        <tr>
+           <th width="65px">Debet</th>
+           <th width="65px">Kredit</th>
+           <th width="65px">Debet</th>
+           <th width="65px">Kredit</th>
+           <th width="65px">Debet</th>
+           <th width="65px">Kredit</th>
         </tr>
         @foreach($data as $dt)
         <tr>
             <td>@if($dt->header=='Y')<b>{{$dt->kode}}</b> @else &nbsp;&nbsp; {{$dt->kode}} @endif</td>
-            <td @if($dt->header=='Y') colspan="5" @endif>@if($dt->header=='Y')<b>{{$dt->nama}}</b> @else {{$dt->nama}} @endif </td>
+            <td @if($dt->header=='Y') colspan="7" @endif>@if($dt->header=='Y')<b>{{$dt->nama}}</b> @else {{$dt->nama}} @endif </td>
             @if($dt->header=='N')
-            <td align="right">{{FormatAngka(0)}}</td>
-            <td align="right">{{FormatAngka(0)}}</td>
-            <td align="right">{{FormatAngka(0)}}</td>
-            <td align="right">{{FormatAngka(0)}}</td>
+            <td align="right">@if($dt->sa>=0) {{FormatAngka($dt->sa)}} @else 0 @endif</td>
+            <td align="right">@if($dt->sa<0) {{FormatAngka(abs($dt->sa))}} @else 0 @endif</td>
+            <td align="right">@if(!(empty($dt->md))){{FormatAngka($dt->md)}} @else 0 @endif</td>
+            <td align="right">@if(!(empty($dt->mk))){{FormatAngka($dt->mk)}} @else 0 @endif</td>
+            <td align="right">@if($dt->sa+$dt->md-$dt->mk>=0){{FormatAngka($dt->sa+$dt->md-$dt->mk)}} @else 0 @endif</td>
+            <td align="right">@if($dt->sa+$dt->md-$dt->mk<0){{FormatAngka(abs($dt->sa+$dt->md-$dt->mk))}} @else 0 @endif</td>
             @else
             @endif
         </tr>    

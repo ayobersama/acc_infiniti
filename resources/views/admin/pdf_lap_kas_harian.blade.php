@@ -50,6 +50,9 @@
 
     <table width="680px">
         <tr valign="top">
+            <td><img src="{{ asset('images/logo_login.png')}}" height="50px"></td>
+        </tr>
+        <tr valign="top">
             <td align="center"><h3>LAPORAN KAS HARIAN</h3><br></td>
         </tr>
         <tr valign="top">

@@ -13,12 +13,12 @@
     <link rel="stylesheet" href="{{ asset('plug-ins/DataTables/css/dataTables.bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('plug-ins/FileUpload/bootstrap-fileupload.min.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ asset('css/admin.css?v=3') }}">    
+    <link rel="stylesheet" href="{{ asset('css/admin.css?v=5') }}">    
 </head>
 <body>
     <!-- header begin-->
     <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{{ route('home_admin') }}" style="color:#444 !important;font-size:24px"><img src=" {{ asset('images/logo_header.png') }}" height="35px">  PT. Infiniti Jaya Pasific</a>
+        <a class="navbar-brand" href="{{ route('home_admin') }}" style="color:#444 !important;font-size:24px"><img src=" {{ asset('images/logo_header.png') }}" height="35px">  PT. INFINITI JAYA PACIFIC</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>        
@@ -194,6 +194,8 @@
                     $terlihat2=app('App\Http\Controllers\Admin\AuthAdminController')->ada_menu('LBANKH');
                     $terlihat3=app('App\Http\Controllers\Admin\AuthAdminController')->ada_menu('LBUKUB');
                     $terlihat4=app('App\Http\Controllers\Admin\AuthAdminController')->ada_menu('LRBUKUB');
+                    $terlihat5=app('App\Http\Controllers\Admin\AuthAdminController')->ada_menu('LNERACA');
+                    $terlihat6=app('App\Http\Controllers\Admin\AuthAdminController')->ada_menu('LLABARUGI');
                 @endphp
                 <div id="sidebar-container" class="sidebar-expanded d-none d-md-block">
                     <ul class="list-group">
@@ -206,7 +208,8 @@
                             </div>
                         </a>
                         <!-- Submenu content -->  
-                        <div id='submenu2' class="@if(!(($menu=="lap_kas_harian")||($menu=="lap_bank_harian"))) collapse @endif sidebar-submenu" style="font-size:15px">
+                        <div id='submenu2' class="@if(!(($menu=="lap_kas_harian")||($menu=="lap_bank_harian")||($menu=="lap_buku_besar")||($menu=="lap_rekap_buku_besar")
+                                                 ||($menu=="lap_neraca")||($menu=="lap_laba_rugi"))) collapse @endif sidebar-submenu" style="font-size:15px">
                             @if($terlihat1)
                             <li class="@if($menu=='lap_kas_harian') active @endif">
                                 <a href="{{ url('admin/lap_kas_harian') }}" class="nav-link" style="font-size:15px">
@@ -235,10 +238,28 @@
                             @endif
 
                             @if($terlihat4)
-                            <li class="@if($menu=='lap_rekap_buku_besar') active @endif">
+                             <li class="@if($menu=='lap_rekap_buku_besar') active @endif">
                                 <a href="{{ url('admin/lap_rekap_buku_besar') }}" class="nav-link" style="font-size:15px">
                                     <span class="fa fa-file-text-o ml-2 mr-2"></span>
-                                    <span class="menu-label">Rekap Buku Besar</span>
+                                    <span class="menu-label">Rekap Buku besar</span>
+                                </a>
+                            </li>
+                            @endif
+
+                            @if($terlihat5)
+                            <li class="@if($menu=='lap_neraca') active @endif">
+                                <a href="{{ url('admin/lap_neraca') }}" class="nav-link" style="font-size:15px">
+                                    <span class="fa fa-file-text-o ml-2 mr-2"></span>
+                                    <span class="menu-label">Neraca</span>
+                                </a>
+                            </li>
+                            @endif
+
+                            @if($terlihat6)
+                            <li class="@if($menu=='lap_laba_rugi') active @endif">
+                                <a href="{{ url('admin/lap_laba_rugi') }}" class="nav-link" style="font-size:15px">
+                                    <span class="fa fa-file-text-o ml-2 mr-2"></span>
+                                    <span class="menu-label">Laba Rugi</span>
                                 </a>
                             </li>
                             @endif

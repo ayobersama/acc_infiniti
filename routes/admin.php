@@ -60,4 +60,8 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::post('admin/cetak_buku_besar', [LapBukuBesarController::class, 'cetak']);
     Route::get('admin/lap_rekap_buku_besar', [LapRekapBukuBesarController::class, 'index']);
     Route::post('admin/cetak_rekap_buku_besar', [LapRekapBukuBesarController::class, 'cetak']);
+    Route::get('admin/lap_neraca', [LapNeracaController::class, 'index']);
+    Route::post('admin/cetak_neraca', [LapNeracaController::class, 'cetak']);
+    Route::get('admin/lap_laba_rugi', [LapLabaRugiController::class, 'index']);
+    Route::post('admin/cetak_laba_rugi', [LapLabaRugiController::class, 'cetak']);
   });

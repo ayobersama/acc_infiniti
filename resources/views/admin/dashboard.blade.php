@@ -16,6 +16,12 @@
                     Selamat Datang Admin
                 </div>
             </div>
+             <div class="row">
+                <div class="col-md-12 text-center">
+                    <br><br><br><br><br><br>
+                    <img src="{{ asset('images/logo_login.png')}}" width="50%;">
+              </div>
+            </div>        
         </div>
     </div>    
     @include('layouts.footer')      

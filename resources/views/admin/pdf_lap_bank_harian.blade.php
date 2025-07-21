@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Laporan Kas Harian</title>
+    <title>Laporan Bank Harian</title>
 </head>
 <body style="font-size:12px">
     <style>
@@ -49,6 +49,9 @@
     </style>
 
     <table width="680px">
+        <tr valign="top">
+            <td><img src="{{ asset('images/logo_login.png')}}" height="50px"></td>
+        </tr>
         <tr valign="top">
             <td align="center"><h3>LAPORAN BANK HARIAN</h3><br></td>
         </tr>
