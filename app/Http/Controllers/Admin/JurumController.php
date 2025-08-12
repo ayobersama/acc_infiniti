@@ -64,6 +64,48 @@ class JurumController extends Controller
             $tgl=FormatTglDB($request->tgl);
         else $tgl=null;
 
+        $tgl_lama=DB::table('jurum')->where('bukti',$id)->value('tgl');
+        if($tgl!=$tgl_lama){
+            $bln_lama=substr($tgl_lama,5,2);
+            if(substr($bln_lama,0,1)=='0') $bln_lama=substr($bln_lama,1,1);
+            $thn_lama=substr($tgl_lama,0,4);
+            $detail=DB::table('jurumd')->where('bukti',$id)->get();
+            $bln=substr($tgl,5,2);
+            if(substr($bln,0,1)=='0') $bln=substr($bln,1,1);
+            $thn=substr($tgl,0,4);
+            foreach($detail as $det){
+                $key=array(
+                    'cha'=>$det->cha,
+                    'thn'=>$thn_lama,
+                );
+                if($det->dk=='D'){
+                    $data=array(
+                        'd'.$bln_lama=> DB::raw('d'.$bln_lama.'-('.$det->nilai.')'),
+                    );
+                } else {
+                    $data=array(
+                        'k'.$bln_lama=> DB::raw('k'.$bln_lama.'-('.$det->nilai.')'),
+                    );
+                }
+                MutasiSaldo::updateOrInsert($key,$data);
+
+                $key=array(
+                    'cha'=>$det->cha,
+                    'thn'=>$thn,
+                );
+                if($det->dk=='D'){
+                    $data=array(
+                        'd'.$bln=> DB::raw('d'.$bln.'+('.$det->nilai.')'),
+                    );
+                } else {
+                    $data=array(
+                        'k'.$bln=> DB::raw('k'.$bln.'+('.$det->nilai.')'),
+                    );
+                }
+                MutasiSaldo::updateOrInsert($key,$data);
+            }
+        }
+
         $data=array(
             'tgl'=>$tgl,
             'ket'=>$request->ket,
@@ -76,7 +118,30 @@ class JurumController extends Controller
     public function destroy($id)
     {
         //hapus data
+        $tgl=DB::table('jurum')->where('bukti',$id)->value('tgl');
+        $bln=substr($tgl,5,2);
+        if(substr($bln,0,1)=='0') $bln=substr($bln,1,1);
+        $thn=substr($tgl,0,4);
+        $detail=DB::table('jurumd')->where('bukti',$id)->get();
+        foreach($detail as $det){
+            $key=array(
+                'cha'=>$det->cha,
+                'thn'=>$thn,
+            );
+            if($det->dk=='D'){
+                $data=array(
+                    'd'.$bln=> DB::raw('d'.$bln.'-('.$det->nilai.')'),
+                );
+            } else {
+                $data=array(
+                    'k'.$bln=> DB::raw('k'.$bln.'-('.$det->nilai.')'),
+                );
+            }
+            MutasiSaldo::updateOrInsert($key,$data);
+        }   
+
         JurnalUmum::where('bukti',$id)->delete();
+        DB::table('jurumd')->where('bukti',$id)->delete();
         return redirect('admin/jurum')->with('success', 'Data sudah berhasil dihapus');
     }
 
@@ -120,7 +185,7 @@ class JurumController extends Controller
         );
         JurnalUmum::where('bukti',$request->bukti)->update($data);
         
-        $tgl=DB::table('jurumm')->where('bukti',$request->bukti)->value('tgl');
+        $tgl=DB::table('jurum')->where('bukti',$request->bukti)->value('tgl');
         $bln=substr($tgl,5,2);
         if(substr($bln,0,1)=='0') $bln=substr($bln,1,1);
         $thn=substr($tgl,0,4);  

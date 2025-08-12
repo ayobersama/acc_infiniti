@@ -263,7 +263,7 @@
             if (lolos==true) {
                 $("#jns").val('i');
                 $("#bukti2").val(bukti);
-                $("#account").val("");
+                $("#account").val("").trigger('change');
                 $("#uraian").val("");
                 $("#nilai").val("");
                 $("#judul_modal").text("Tambah Jurnal");
@@ -324,13 +324,14 @@
                 processData: false,
                 dataType : 'json',
                 success: function(response){
-                    console.log(response);
+                    //console.log(response);
                     if(response["success"]){
                         $("#Modal").modal('hide');
                         $("#detail").load("{{url('admin/tampilkan_bankkd/'.$bankk->bukti)}}");
                     } else  alert('Gagal Menyimpan detail');
                 },
                 error:function(data){
+                    //console.log(data);
                     alert('Gagal Menyimpan detail');
                 },		     
             });

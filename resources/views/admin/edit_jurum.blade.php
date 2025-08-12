@@ -308,7 +308,7 @@
                 processData: false,
                 dataType : 'json',
                 success: function(response){
-                    console.log(response);
+                    //console.log(response);
                     if(response["success"]){
                         $("#Modal").modal('hide');
                         $("#detail").load("{{url('admin/tampilkan_jurumd/'.$jurum->bukti)}}");

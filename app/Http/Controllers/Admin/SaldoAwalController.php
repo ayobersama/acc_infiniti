@@ -44,24 +44,26 @@ class SaldoAwalController extends Controller
         if($validator->fails()){
             return redirect()->back()->withErrors($validator)->withInput($request->all);
         }
+        $thn_awal=DB::table('psys')->value('awal');
 
         if($request->nilai!='') $nilai=UnformatAngka($request->nilai); else  $nilai=0; 
         $data=array(
             'cha'=>$request->account,
             'dk'=>$request->dk,
-            'nilai'=>$nilai
+            'nilai'=>$nilai,
+            'thn'=>$thn_awal
         );
         SaldoAwal::create($data);
         
         //mutasi
-        $thn_awal=DB::table('psys')->value('awal');
+        
         if($request->dk=='K') $nilai=-$nilai;
         $key=array(
             'cha'=>$request->account,
             'thn'=>$thn_awal,
         );
         $data=array(
-            'sa'=> DB::raw('sa+'.$nilai),
+            'sa'=> DB::raw('sa+('.$nilai.')'),
         );
         MutasiSaldo::updateOrInsert($key,$data);
 
@@ -93,12 +95,12 @@ class SaldoAwalController extends Controller
         if($validator->fails()){
             return redirect()->back()->withErrors($validator)->withInput($request->all);
         }
-
-        $nilai_lama=DB::table('saldo_awal')->where('cha',$request->account)->value('nilai');
-        $dk_lama=DB::table('saldo_awal')->where('cha',$request->account)->value('dk');
-        if($dk_lama=='D') $koreksi=-$nilai_lama; else $koreksi=$nilai_lama;
-
-        if($request->nilai!='') $nilai=UnformatAngka($request->nilai); else  $nilai=0;       
+        $cha_lama=DB::table('saldo_awal')->where('id',$id)->value('cha');
+        $nilai_lama=DB::table('saldo_awal')->where('id',$id)->value('nilai');
+        $dk_lama=DB::table('saldo_awal')->where('id',$id)->value('dk');
+  
+        
+        if($request->nilai!='') $nilai=UnformatAngka($request->nilai); else  $nilai=0;    
         $data=array(
             'cha'=>$request->account,
             'dk'=>$request->dk,
@@ -108,24 +110,34 @@ class SaldoAwalController extends Controller
         
         //mutasi
         $thn_awal=DB::table('psys')->value('awal');
-        if($request->dk=='K') $nilai=-$nilai;
-        $nilai=$koreksi+$nilai;       
-
+        if($dk_lama=='K') $nilai_lama=-$nilai_lama;    
+        $key=array(
+            'cha'=>$cha_lama,
+            'thn'=>$thn_awal,
+        );
+        $data=array(
+            'sa'=> DB::raw('sa-('.$nilai_lama.')'),
+        );
+        MutasiSaldo::updateOrInsert($key,$data);
+       
+        if($request->dk=='K') $nilai=-$nilai;    
         $key=array(
             'cha'=>$request->account,
             'thn'=>$thn_awal,
         );
         $data=array(
-            'sa'=> DB::raw('sa+'.$nilai),
+            'sa'=> DB::raw('sa+('.$nilai.')'),
         );
         MutasiSaldo::updateOrInsert($key,$data);
+        
         return redirect('admin/sawal')->with('success', 'Data berhasil diubah');
     }
 
     public function destroy($id)
     {
-        $nilai_lama=DB::table('saldo_awal')->where('cha',$request->account)->value('nilai');
-        $dk_lama=DB::table('saldo_awal')->where('cha',$request->account)->value('dk');
+        $cha=DB::table('saldo_awal')->where('id',$id)->value('cha');
+        $nilai_lama=DB::table('saldo_awal')->where('cha',$cha)->value('nilai');
+        $dk_lama=DB::table('saldo_awal')->where('cha',$cha)->value('dk');
         if($dk_lama=='D') $koreksi=-$nilai_lama; else $koreksi=$nilai_lama;
 
         //hapus data
@@ -136,11 +148,11 @@ class SaldoAwalController extends Controller
         $thn_awal=DB::table('psys')->value('awal');
 
         $key=array(
-            'cha'=>$request->account,
+            'cha'=>$cha,
             'thn'=>$thn_awal,
         );
         $data=array(
-            'sa'=> DB::raw('sa+'.$koreksi),
+            'sa'=> DB::raw('sa+('.$koreksi.')'),
         );
         MutasiSaldo::updateOrInsert($key,$data);
  

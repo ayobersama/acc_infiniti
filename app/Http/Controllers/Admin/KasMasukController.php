@@ -73,14 +73,78 @@ class KasMasukController extends Controller
         if(isset($request->tgl))
             $tgl=FormatTglDB($request->tgl);
         else $tgl=null;
+        
+        $tgl_lama=DB::table('kasm')->where('bukti',$id)->value('tgl');
+        $bln_lama=substr($tgl_lama,5,2);
+        if(substr($bln_lama,0,1)=='0') $bln_lama=substr($bln_lama,1,1);
+        $thn_lama=substr($tgl_lama,0,4);
+        $bln=substr($tgl,5,2);
+        if(substr($bln,0,1)=='0') $bln=substr($bln,1,1);
+        $thn=substr($tgl,0,4);
+        $kas_lama=DB::table('kasm')->where('bukti',$id)->value('kas');
+        $nilai_lama=DB::table('kasm')->where('bukti',$id)->value('nilai');
+        if($tgl!=$tgl_lama){
+            $detail=DB::table('kasmd')->where('bukti',$id)->get();            
+            foreach($detail as $det){
+                $key=array(
+                    'cha'=>$det->cha,
+                    'thn'=>$thn_lama,
+                );
+                if($det->dk=='D'){
+                    $data=array(
+                        'd'.$bln_lama=> DB::raw('d'.$bln_lama.'-('.$det->nilai.')'),
+                    );
+                } else {
+                    $data=array(
+                        'k'.$bln_lama=> DB::raw('k'.$bln_lama.'-('.$det->nilai.')'),
+                    );
+                }
+                MutasiSaldo::updateOrInsert($key,$data);
 
+                $key=array(
+                    'cha'=>$det->cha,
+                    'thn'=>$thn,
+                );
+                if($det->dk=='D'){
+                    $data=array(
+                        'd'.$bln=> DB::raw('d'.$bln.'+('.$det->nilai.')'),
+                    );
+                } else {
+                    $data=array(
+                        'k'.$bln=> DB::raw('k'.$bln.'+('.$det->nilai.')'),
+                    );
+                }
+                MutasiSaldo::updateOrInsert($key,$data);
+            }
+
+        }    
+        
         $data=array(
             'tgl'=>$tgl,
             'kas'=>$request->kas,
             'relasi'=>$request->relasi,
             'ket'=>$request->ket,
         );   
-        KasMasuk::where('bukti',$id)->update($data);
+        KasMasuk::where('bukti',$id)->update($data);       
+
+        //mutasi kas
+        $key=array(
+            'cha'=>$kas_lama,
+            'thn'=>$thn_lama,
+        );
+        $data=array(
+            'd'.$bln_lama=> DB::raw('d'.$bln_lama.'-('.$nilai_lama.')'),
+        );
+        MutasiSaldo::updateOrInsert($key,$data); 
+
+        $key=array(
+            'cha'=>$request->kas,
+            'thn'=>$thn,
+        );
+        $data=array(
+            'd'.$bln=> DB::raw('d'.$bln.'+('.$nilai_lama.')'),
+        );
+        MutasiSaldo::updateOrInsert($key,$data); 
 
         return response()->json(['success'=>true]);   
     }
@@ -88,7 +152,40 @@ class KasMasukController extends Controller
     public function destroy($id)
     {
         //hapus data
+        $tgl=DB::table('kasm')->where('bukti',$id)->value('tgl');
+        $kas=DB::table('kasm')->where('bukti',$id)->value('kas');
+        $nilai=DB::table('kasm')->where('bukti',$id)->value('nilai');
+        $bln=substr($tgl,5,2);
+        if(substr($bln,0,1)=='0') $bln=substr($bln,1,1);
+        $thn=substr($tgl,0,4);
+        $detail=DB::table('kasmd')->where('bukti',$id)->get();
+        foreach($detail as $det){
+            $key=array(
+                'cha'=>$det->cha,
+                'thn'=>$thn,
+            );
+            if($det->dk=='D'){
+                $data=array(
+                    'd'.$bln=> DB::raw('d'.$bln.'-('.$det->nilai.')'),
+                );
+            } else {
+                $data=array(
+                    'k'.$bln=> DB::raw('k'.$bln.'-('.$det->nilai.')'),
+                );
+            }
+            MutasiSaldo::updateOrInsert($key,$data);
+        }        
+        $key=array(
+            'cha'=>$kas,
+            'thn'=>$thn,
+        );
+        $data=array(
+            'd'.$bln=> DB::raw('d'.$bln.'-('.$nilai.')'),
+        );
+        MutasiSaldo::updateOrInsert($key,$data);
+
         KasMasuk::where('bukti',$id)->delete();
+        DB::table('kasmd')->where('bukti',$id)->delete();
         return redirect('admin/kasm')->with('success', 'Data sudah berhasil dihapus');
     }
 
@@ -127,7 +224,6 @@ class KasMasukController extends Controller
         if($validator->fails()){
             return response()->json(['success'=>false,'error:'=>$errors->all()]);  
         }
-        
         if($request->nilai!='') $nilai=UnformatAngka($request->nilai); else  $nilai=0;    
         $data=array(
             'bukti'=>$request->bukti,
@@ -138,31 +234,39 @@ class KasMasukController extends Controller
         );
         KasMasukDetail::create($data);
 
+        $tgl=DB::table('kasm')->where('bukti',$request->bukti)->value('tgl');
+        $bln=substr($tgl,5,2);
+        if(substr($bln,0,1)=='0') $bln=substr($bln,1,1);
+        $thn=substr($tgl,0,4);
+
+        //update total
+        $kas=DB::table('kasm')->where('bukti',$request->bukti)->value('kas');  
+        $total_lama=DB::table('kasm')->where('bukti',$request->bukti)->value('nilai');  
         $total=DB::table('kasmd')->where('bukti',$request->bukti)->sum('nilai');
         $data=array(
             'nilai'=>$total
         );
         KasMasuk::where('bukti',$request->bukti)->update($data);
     
-        $tgl=DB::table('kasm')->where('bukti',$request->bukti)->value('tgl');
-        $bln=substr($tgl,5,2);
-        if(substr($bln,0,1)=='0') $bln=substr($bln,1,1);
-        $thn=substr($tgl,0,4);
-  
+        //mutasi kas
+        $key=array(
+            'cha'=>$kas,
+            'thn'=>$thn,
+        );
+        $data=array(
+            'd'.$bln=> DB::raw('d'.$bln.'+('.$nilai.')'),
+        );
+        MutasiSaldo::updateOrInsert($key,$data);
+
+        //mutasi jurnal 
         $key=array(
             'cha'=>$request->account,
             'thn'=>$thn,
         );
       //  DB::enableQueryLog();
-        if($request->dk=='D'){
-            $data=array(
-                'd'.$bln=> DB::raw('d'.$bln.'+('.$nilai.')'),
-            );
-        } else {
-            $data=array(
-                'k'.$bln=> DB::raw('k'.$bln.'+('.$nilai.')'),
-            );
-        }
+        $data=array(
+            'k'.$bln=> DB::raw('k'.$bln.'+('.$nilai.')'),
+        );
         MutasiSaldo::updateOrInsert($key,$data);
        // dd(DB::getQueryLog());  
         
@@ -174,11 +278,34 @@ class KasMasukController extends Controller
         $bukti=DB::table('kasmd')->where('id',$id)->value('bukti');
         $cha=DB::table('kasmd')->where('id',$id)->value('cha');
         $tgl=DB::table('kasm')->where('bukti',$bukti)->value('tgl');
+        $kas=DB::table('kasm')->where('bukti',$bukti)->value('kas');
         $bln=substr($tgl,5,2);
         if(substr($bln,0,1)=='0') $bln=substr($bln,1,1);
         $thn=substr($tgl,0,4);
         $nilai_lama=DB::table('kasmd')->where('id',$id)->value('nilai');
         $dk_lama=DB::table('kasmd')->where('id',$id)->value('dk');       
+    
+        //hapus detail
+        DB::table('kasmd')->where('id',$id)->delete();
+        
+        //update total
+        $total=DB::table('kasmd')->where('bukti',$bukti)->sum('nilai');
+        $data=array(
+            'nilai'=>$total
+        );
+        KasMasuk::where('bukti',$bukti)->update($data);
+
+        //mutasi kas
+        $key=array(
+            'cha'=>$kas,
+            'thn'=>$thn,
+        );
+        $data=array(
+            'd'.$bln=> DB::raw('d'.$bln.'-'.$nilai_lama),
+        );
+        MutasiSaldo::updateOrInsert($key,$data);
+
+        //mutasi jurnal
         $key=array(
             'cha'=>$cha,
             'thn'=>$thn,
@@ -194,13 +321,6 @@ class KasMasukController extends Controller
         }
         MutasiSaldo::updateOrInsert($key,$data);
 
-        DB::table('kasmd')->where('id',$id)->delete();
-        
-        $total=DB::table('kasmd')->where('bukti',$bukti)->sum('nilai');
-        $data=array(
-            'nilai'=>$total
-        );
-        KasMasuk::where('bukti',$bukti)->update($data);
         return response()->json(['success'=>true]);  
     }
 
@@ -215,22 +335,17 @@ class KasMasukController extends Controller
         $cha_lama=DB::table('kasmd')->where('id',$id)->value('cha');
         $nilai_lama=DB::table('kasmd')->where('id',$id)->value('nilai');
         $dk_lama=DB::table('kasmd')->where('id',$id)->value('dk');       
+        if($request->nilai!='') $nilai=UnformatAngka($request->nilai); else  $nilai=0;   
+        //mutasi jurnal lama
         $key=array(
             'cha'=>$cha_lama,
             'thn'=>$thn,
         );
-        if($request->dk_lama=='D'){
-            $data=array(
-                'd'.$bln=> DB::raw('d'.$bln.'-'.$nilai_lama),
-            );
-        } else {
-            $data=array(
-                'k'.$bln=> DB::raw('k'.$bln.'-'.$nilai_lama),
-            );
-        }
+        $data=array(
+            'k'.$bln=> DB::raw('k'.$bln.'-'.$nilai_lama),
+        );
         MutasiSaldo::updateOrInsert($key,$data);
-
-        if($request->nilai!='') $nilai=UnformatAngka($request->nilai); else  $nilai=0;      
+   
         $data=array(
             'cha'=>$request->account,
             'uraian'=>$request->uraian,
@@ -244,19 +359,25 @@ class KasMasukController extends Controller
         );
         KasMasuk::where('bukti',$request->bukti)->update($data);
 
+        //mutasi kas 
+        $kas=DB::table('kasm')->where('bukti',$request->bukti)->value('kas');
+        $key=array(
+            'cha'=>$kas,
+            'thn'=>$thn,
+        );
+        $data=array(
+            'd'.$bln=> DB::raw('d'.$bln.'+('.$nilai.'-'.$nilai_lama.')'),
+        );
+        MutasiSaldo::updateOrInsert($key,$data);
+
+        //mutasi jurnal
         $key=array(
             'cha'=>$request->account,
             'thn'=>$thn,
         );
-        if($request->dk=='D'){
-            $data=array(
-                'd'.$bln=> DB::raw('d'.$bln.'+('.$nilai.')'),
-            );
-        } else {
-            $data=array(
-                'k'.$bln=> DB::raw('k'.$bln.'+('.$nilai.')'),
-            );
-        }
+        $data=array(
+            'k'.$bln=> DB::raw('k'.$bln.'+('.$nilai.')'),
+        );
         MutasiSaldo::updateOrInsert($key,$data);
 
         return response()->json(['success'=>true]);  

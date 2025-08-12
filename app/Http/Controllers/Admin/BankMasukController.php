@@ -73,7 +73,50 @@ class BankMasukController extends Controller
         if(isset($request->tgl))
             $tgl=FormatTglDB($request->tgl);
         else $tgl=null;
+        $bln=substr($tgl,5,2);
+        if(substr($bln,0,1)=='0') $bln=substr($bln,1,1);
+        $thn=substr($tgl,0,4);
+        $tgl_lama=DB::table('bankm')->where('bukti',$id)->value('tgl');
+        $bln_lama=substr($tgl_lama,5,2);
+        if(substr($bln_lama,0,1)=='0') $bln_lama=substr($bln_lama,1,1);
+        $thn_lama=substr($tgl_lama,0,4);
+        $bank_lama=DB::table('bankm')->where('bukti',$id)->value('bank');
+        $nilai_lama=DB::table('bankm')->where('bukti',$id)->value('nilai');
+        if($tgl!=$tgl_lama){
+            $detail=DB::table('bankmd')->where('bukti',$id)->get();
+            foreach($detail as $det){
+                $key=array(
+                    'cha'=>$det->cha,
+                    'thn'=>$thn_lama,
+                );
+                if($det->dk=='D'){
+                    $data=array(
+                        'd'.$bln_lama=> DB::raw('d'.$bln_lama.'-('.$det->nilai.')'),
+                    );
+                } else {
+                    $data=array(
+                        'k'.$bln_lama=> DB::raw('k'.$bln_lama.'-('.$det->nilai.')'),
+                    );
+                }
+                MutasiSaldo::updateOrInsert($key,$data);
 
+                $key=array(
+                    'cha'=>$det->cha,
+                    'thn'=>$thn,
+                );
+                if($det->dk=='D'){
+                    $data=array(
+                        'd'.$bln=> DB::raw('d'.$bln.'+('.$det->nilai.')'),
+                    );
+                } else {
+                    $data=array(
+                        'k'.$bln=> DB::raw('k'.$bln.'+('.$det->nilai.')'),
+                    );
+                }
+                MutasiSaldo::updateOrInsert($key,$data);
+            }
+        }
+        
         $data=array(
             'tgl'=>$tgl,
             'bank'=>$request->bank,
@@ -82,13 +125,67 @@ class BankMasukController extends Controller
         );   
         BankMasuk::where('bukti',$id)->update($data);
 
+        //mutasi bank
+        $key=array(
+            'cha'=>$bank_lama,
+            'thn'=>$thn_lama,
+        );
+        $data=array(
+            'd'.$bln_lama=> DB::raw('d'.$bln_lama.'-('.$nilai_lama.')'),
+        );
+        MutasiSaldo::updateOrInsert($key,$data); 
+
+        $key=array(
+            'cha'=>$request->bank,
+            'thn'=>$thn,
+        );
+        $data=array(
+            'd'.$bln=> DB::raw('d'.$bln.'+('.$nilai_lama.')'),
+        );
+        MutasiSaldo::updateOrInsert($key,$data); 
+
         return response()->json(['success'=>true]);   
     }
 
     public function destroy($id)
     {
         //hapus data
+        $tgl=DB::table('bankm')->where('bukti',$id)->value('tgl');
+        $bank=DB::table('bankm')->where('bukti',$id)->value('bank');
+        $nilai=DB::table('bankm')->where('bukti',$id)->value('nilai');
+        $bln=substr($tgl,5,2);
+        if(substr($bln,0,1)=='0') $bln=substr($bln,1,1);
+        $thn=substr($tgl,0,4);
+        $detail=DB::table('bankmd')->where('bukti',$id)->get();
+        foreach($detail as $det){
+            $key=array(
+                'cha'=>$det->cha,
+                'thn'=>$thn,
+            );
+            if($det->dk=='D'){
+                $data=array(
+                    'd'.$bln=> DB::raw('d'.$bln.'-('.$det->nilai.')'),
+                );
+            } else {
+                $data=array(
+                    'k'.$bln=> DB::raw('k'.$bln.'-('.$det->nilai.')'),
+                );
+            }
+            MutasiSaldo::updateOrInsert($key,$data);
+        }    
+
+        $key=array(
+            'cha'=>$bank,
+            'thn'=>$thn,
+        );
+        $data=array(
+            'd'.$bln=> DB::raw('d'.$bln.'-('.$nilai.')'),
+        );
+        MutasiSaldo::updateOrInsert($key,$data);
+
         BankMasuk::where('bukti',$id)->delete();
+        DB::table('bankmd')->where('bukti',$id)->delete();
+
         return redirect('admin/bankm')->with('success', 'Data sudah berhasil dihapus');
     }
 
@@ -138,6 +235,8 @@ class BankMasukController extends Controller
         );
         BankMasukDetail::create($data);
 
+        $bank=DB::table('bankm')->where('bukti',$request->bukti)->value('bank');  
+        $total_lama=DB::table('bankm')->where('bukti',$request->bukti)->value('nilai');  
         $total=DB::table('bankmd')->where('bukti',$request->bukti)->sum('nilai');
         $data=array(
             'nilai'=>$total
@@ -148,20 +247,25 @@ class BankMasukController extends Controller
         $bln=substr($tgl,5,2);
         if(substr($bln,0,1)=='0') $bln=substr($bln,1,1);
         $thn=substr($tgl,0,4);
-  
+
+        //mutasi bank
+        $key=array(
+            'cha'=>$bank,
+            'thn'=>$thn,
+        );
+        $data=array(
+            'd'.$bln=> DB::raw('d'.$bln.'+('.$nilai.')'),
+        );
+        MutasiSaldo::updateOrInsert($key,$data);
+
+        //mutasi jurnal   
         $key=array(
             'cha'=>$request->account,
             'thn'=>$thn,
         );
-        if($request->dk=='D'){
-            $data=array(
-                'd'.$bln=> DB::raw('d'.$bln.'+('.$nilai.')'),
-            );
-        } else {
-            $data=array(
-                'k'.$bln=> DB::raw('k'.$bln.'+('.$nilai.')'),
-            );
-        }
+        $data=array(
+            'k'.$bln=> DB::raw('k'.$bln.'+('.$nilai.')'),
+        );
         MutasiSaldo::updateOrInsert($key,$data);
 
         return response()->json(['success'=>true]);  
@@ -178,6 +282,19 @@ class BankMasukController extends Controller
         $thn=substr($tgl,0,4);
         $nilai_lama=DB::table('bankmd')->where('id',$id)->value('nilai');
         $dk_lama=DB::table('bankmd')->where('id',$id)->value('dk');       
+        $bank=DB::table('bankm')->where('bukti',$bukti)->value('bank');
+
+        //mutasi bank
+        $key=array(
+            'cha'=>$bank,
+            'thn'=>$thn,
+        );
+        $data=array(
+            'd'.$bln=> DB::raw('d'.$bln.'-'.$nilai_lama),
+        );
+        MutasiSaldo::updateOrInsert($key,$data);
+
+        //mutasi jurnal
         $key=array(
             'cha'=>$cha,
             'thn'=>$thn,
@@ -218,15 +335,10 @@ class BankMasukController extends Controller
             'cha'=>$cha_lama,
             'thn'=>$thn,
         );
-        if($request->dk_lama=='D'){
-            $data=array(
-                'd'.$bln=> DB::raw('d'.$bln.'-'.$nilai_lama),
-            );
-        } else {
-            $data=array(
-                'k'.$bln=> DB::raw('k'.$bln.'-'.$nilai_lama),
-            );
-        }
+      
+        $data=array(
+            'k'.$bln=> DB::raw('k'.$bln.'-'.$nilai_lama),
+        );
         MutasiSaldo::updateOrInsert($key,$data);
 
         if($request->nilai!='') $nilai=UnformatAngka($request->nilai); else  $nilai=0;      
@@ -243,19 +355,26 @@ class BankMasukController extends Controller
         );
         BankMasuk::where('bukti',$request->bukti)->update($data);
 
+        //mutasi bank 
+        $bank=DB::table('bankm')->where('bukti',$request->bukti)->value('bank');
+        $key=array(
+            'cha'=>$bank,
+            'thn'=>$thn,
+        );
+        $data=array(
+            'd'.$bln=> DB::raw('d'.$bln.'+('.$nilai.'-'.$nilai_lama.')'),
+        );
+        MutasiSaldo::updateOrInsert($key,$data);
+
+        //mutasi jurnal
         $key=array(
             'cha'=>$request->account,
             'thn'=>$thn,
         );
-        if($request->dk=='D'){
-            $data=array(
-                'd'.$bln=> DB::raw('d'.$bln.'+('.$nilai.')'),
-            );
-        } else {
-            $data=array(
-                'k'.$bln=> DB::raw('k'.$bln.'+('.$nilai.')'),
-            );
-        }
+        
+        $data=array(
+            'k'.$bln=> DB::raw('k'.$bln.'+('.$nilai.')'),
+        );
         MutasiSaldo::updateOrInsert($key,$data);
 
         return response()->json(['success'=>true]);  

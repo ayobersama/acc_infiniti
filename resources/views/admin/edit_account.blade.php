@@ -60,10 +60,10 @@
                             <label for="jenis" class="col-md-3 col-form-label">Jenis <span class="label-req">*<span></label>
                             <div class="col-md-2">
                                 <select name="jenis" id="jenis" class="form-control">
-                                    <option value="A" @if($account->jenis=="") selected="selected" @endif>Aktiva</option>
-                                    <option value="P" @if($account->jenis=="") selected="selected" @endif>Pasiva</option>
-                                    <option value="B" @if($account->jenis=="") selected="selected" @endif>Biaya</option>
-                                    <option value="D" @if($account->jenis=="") selected="selected" @endif>Pendapatan</option>
+                                    <option value="A" @if($account->jenis=="A") selected="selected" @endif>Aktiva</option>
+                                    <option value="P" @if($account->jenis=="P") selected="selected" @endif>Pasiva</option>
+                                    <option value="B" @if($account->jenis=="B") selected="selected" @endif>Biaya</option>
+                                    <option value="D" @if($account->jenis=="D") selected="selected" @endif>Pendapatan</option>
                                 </select>    
                             </div>
                         </div>

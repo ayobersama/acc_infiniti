@@ -78,9 +78,13 @@
         </tr>
         @php
           $saldo=$sawal;     
+          $tdebet=0;     
+          $tkredit=0;     
         @endphp
         @foreach($data as $dt)
           @php
+             if($dt->debet>0) $tdebet=$tdebet+$dt->debet;
+             if($dt->kredit>0) $tkredit=$tkredit+$dt->kredit;
              $saldo=$saldo+$dt->debet-$dt->kredit;
           @endphp
         <tr>
@@ -92,6 +96,12 @@
             <td align="right">{{FormatAngka($saldo)}}</td>
         </tr>    
         @endforeach
+        <tr>
+            <th align="left" colspan="3">TOTAL</th>
+            <th align="right">{{FormatAngka($tdebet)}}</th>
+            <th align="right">{{FormatAngka($tkredit)}}</th>
+            <td></td>
+        </tr>
     </table>
 </body>
 </html>

@@ -260,7 +260,7 @@
                 },
                 error:function(data){
                   // console.log(data);
-                    alert('gagal menyimpan header');
+                  //  alert('gagal menyimpan header');
                 },		     
             });
         }); 
@@ -300,13 +300,13 @@
                 processData: false,
                 dataType : 'json',
                 success: function(response){
-                    console.log(response);
+                    //console.log(response);
                     if(response["success"]){
                         window.location.replace("{{ url('admin/kasm')}}/"+bukti+"/edit");
                     } else  alert('Gagal Menyimpan detail');
                 },
                 error:function(data){
-                    console.log(data);
+                    //console.log(data);
                     alert('Gagal Menyimpan detail');
                 },		     
             });

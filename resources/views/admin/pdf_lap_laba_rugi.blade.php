@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Laporan Neraca</title>
+    <title>Laporan Laba Rugi</title>
 </head>
 <body style="font-size:14px">
     <style>
@@ -17,7 +17,7 @@
             border: 1px solid black;
             padding: 4px 6px;
             background: #e1e1e1;
-        }
+        }0000
         
         table.detail{
             border-collapse: collapse;
@@ -56,59 +56,60 @@
         </tr>
     </table>
     <hr>
-    <table width="700px" class="bordered">
-        <tr  valign="top">
-            <td>
-                <div><b>PENDAPATAN</b></div>
-                <table width="330px"  class="detail">
-                    @php
-                      $total=0;
-                    @endphp
-                    @foreach($pendapatan as $dt)
-                    @php
-                      if($dt->header!='Y') $total=$total+$dt->saldo;
-                    @endphp
-                    <tr>
-                        <td width="400px">@if($dt->header=='Y')<b>{{$dt->nama}}</b> @else &nbsp;&nbsp; {{$dt->nama}} @endif</td>
-                        <td align="right" width="180px">@if($dt->header!='Y') @if(!(empty($dt->saldo))) {{FormatAngka($dt->saldo)}} @else 0 @endif @endif</td>
-                    </tr>    
-                    @endforeach
-                    <tr>
-                        <td style="border-top:1px solid #111;padding-top:5px" ><b>Total Pendapatan</b></td>
-                        <td align="right" style="border-top:1px solid #111;padding-top:5px">{{$total}}</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td >
-                <div><b>BIAYA</b></div>
-                <table width="580px"  class="detail">
-                    @php
-                      $total=0;
-                    @endphp
-                    @foreach($biaya as $dt)
-                    @php
-                      if($dt->header!='Y') $total=$total+$dt->saldo;
-                    @endphp
-                    <tr>
-                        <td width="400px">@if($dt->header=='Y')<b>{{$dt->nama}}</b> @else &nbsp;&nbsp; {{$dt->nama}} @endif</td>
-                        <td align="right" width="180px">@if($dt->header!='Y') @if(!(empty($dt->saldo))) {{FormatAngka($dt->saldo)}} @else 0 @endif @endif</td>
-                    </tr>    
-                    @endforeach
-                    <tr>
-                        <td style="border-top:1px solid #111;padding-top:5px"><b>Total Biaya</b></td>
-                        <td align="right" style="border-top:1px solid #111;padding-top:5px">{{$total}}</td>
-                    </tr>
-                </table>
-                <table width="580px" class="detail" style="padding-top:10px">
-                    <tr>
-                        <td width="400px" style="border-top:1px solid #111;padding-top:5px"><b>Laba Rugi</b></td>
-                        <td align="right" width="180px" style="border-top:1px solid #111;padding-top:5px">{{$total}}</td>
-                    </tr>
-                </table>    
-            </td>
-        </tr>
-    </table>
+        <div><b>PENDAPATAN</b></div>
+        <table width="330px"  class="detail">
+            @php
+                $total=0;
+            @endphp
+            @foreach($pendapatan as $dt)
+            @php
+                if($dt->header!='Y'){ 
+                  if($dt->jenis=='D')
+                    $total=$total+(-1*$dt->saldo);
+                  else 
+                    $total=$total+$dt->saldo;
+                }
+            @endphp
+            <tr>
+                <td width="400px">@if($dt->header=='Y')<b>{{$dt->nama}}</b> @else &nbsp;&nbsp; {{$dt->nama}} @endif </td>
+                <td align="right" width="180px">
+                    @if($dt->header!='Y') @if(!(empty($dt->saldo))) 
+                       @if($dt->jenis=='D') {{FormatAngka(-1*($dt->saldo))}} @else {{FormatAngka($dt->saldo)}} @endif
+                     @else 0 @endif 
+                    @endif
+                </td>
+            </tr>    
+            @endforeach
+            <tr>
+                <td style="border-top:1px solid #111;border-bottom:1px solid #111;padding:2px 0 2px 0" ><b>Total Pendapatan</b></td>
+                <td align="right" style="border-top:1px solid #111;border-bottom:1px solid #111;padding:2px 0 2px 0">{{FormatAngka($total)}}</td>
+            </tr>
+        </table>
+        <br><br>
+        <div><b>BIAYA</b></div>
+        <table width="580px"  class="detail">
+            @php
+                $total2=0;
+            @endphp
+            @foreach($biaya as $dt)
+            @php
+                if($dt->header!='Y') $total2=$total2+$dt->saldo;
+            @endphp
+            <tr>
+                <td width="400px">@if($dt->header=='Y')<b>{{$dt->nama}}</b> @else &nbsp;&nbsp; {{$dt->nama}} @endif</td>
+                <td align="right" width="180px">@if($dt->header!='Y') @if(!(empty($dt->saldo))) {{FormatAngka($dt->saldo)}} @else 0 @endif @endif</td>
+            </tr>    
+            @endforeach
+            <tr>
+                <td style="border-top:1px solid #111;border-bottom:1px solid #111;padding:2px 0 2px 0"><b>Total Biaya</b></td>
+                <td align="right" style="border-top:1px solid #111;border-bottom:1px solid #111;padding:2px 0 2px 0">{{FormatAngka($total2)}}</td>
+            </tr>
+        </table>
+        <table width="580px" class="detail" style="padding-top:10px">
+            <tr>
+                <td width="400px" style="border-top:1px solid #111;border-bottom:1px solid #111;padding:2px 0 2px 0"><b>Laba Rugi</b></td>
+                <td align="right" width="180px" style="border-top:1px solid #111;border-bottom:1px solid #111;padding:2px 0 2px 0">{{FormatAngka($total-$total2)}}</td>
+            </tr>
+        </table>    
 </body>
 </html>

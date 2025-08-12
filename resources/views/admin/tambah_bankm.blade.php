@@ -293,13 +293,13 @@
                 processData: false,
                 dataType : 'json',
                 success: function(response){
-                    console.log(response);
+                    //console.log(response);
                     if(response["success"]){
                         window.location.replace("{{ url('admin/bankm')}}/"+bukti+"/edit");
                     } else  alert('Gagal Menyimpan detail');
                 },
-                error:function(){
-                    console.log(data);
+                error:function(data){
+                    //console.log(data);
                 },		     
             });
         }); 

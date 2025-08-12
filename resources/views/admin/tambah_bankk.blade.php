@@ -303,8 +303,8 @@
                         window.location.replace("{{ url('admin/bankk')}}/"+bukti+"/edit");
                     } else  alert('Gagal Menyimpan detail');
                 },
-                error:function(){
-                    console.log(data);
+                error:function(data){
+                   // console.log(data);
                 },		     
             });
         });

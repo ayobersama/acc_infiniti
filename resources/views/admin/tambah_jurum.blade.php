@@ -282,13 +282,13 @@
                 processData: false,
                 dataType : 'json',
                 success: function(response){
-                    console.log(response);
+                    //console.log(response);
                     if(response["success"]){
                         window.location.replace("{{ url('admin/jurum')}}/"+bukti+"/edit");
                     } else  alert('Gagal Menyimpan detail');
                 },
                 error:function(data){
-                    console.log(data);
+                    //console.log(data);
                 },		     
             });
         }); 

@@ -14,7 +14,7 @@ class AccountController extends Controller
     {
         //menampilkan seluruh data
         $account = DB::table('account as a')->select('a.id','a.kode','a.nama','a.jenis','a.induk','a.kb','a.header','a.aktif','i.kode as kode_induk')
-                    ->leftJoin('account as i','i.id','a.induk')->get();
+                    ->leftJoin('account as i','i.id','a.induk')->orderby('a.kode')->get();
         $menu='account';
         $hak_akses=app('App\Http\Controllers\Admin\AuthAdminController')->hak_akses('RELASI');
         return view('admin.account',compact('menu','account','hak_akses'));

@@ -77,7 +77,7 @@
                     @endforeach
                     <tr>
                         <td style="border-top:1px solid #111;padding-top:5px" ><b>Total Aktiva</b></td>
-                        <td align="right" style="border-top:1px solid #111;padding-top:5px">{{$total}}</td>
+                        <td align="right" style="border-top:1px solid #111;padding-top:5px">{{FormatAngka($total)}}</td>
                     </tr>
                 </table>
             </td>
@@ -98,7 +98,7 @@
                     @endforeach
                     <tr>
                         <td style="border-top:1px solid #111;padding-top:5px"><b>Total Pasiva</b></td>
-                        <td align="right" style="border-top:1px solid #111;padding-top:5px">{{$total}}</td>
+                        <td align="right" style="border-top:1px solid #111;padding-top:5px">{{FormatAngka($total)}}</td>
                     </tr>
                 </table>
             </td>

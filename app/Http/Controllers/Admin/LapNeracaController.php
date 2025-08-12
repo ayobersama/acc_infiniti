@@ -23,11 +23,12 @@ class LapNeracaController extends Controller
         $bln=$request->bln1;
         $thn=$request->thn;
 
-        $saldo='';
+        $saldo='sa';
         for($i=1;$i<=$bln;$i++){
             if($saldo!='') $saldo=$saldo.'+';
             $saldo=$saldo.'d'.$i.'-'.'k'.$i;
         }
+
         $saldo=$saldo.' as saldo';
         $aktif='Y';
         $jns_aktiva='A';

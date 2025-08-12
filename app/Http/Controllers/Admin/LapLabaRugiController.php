@@ -28,7 +28,7 @@ class LapLabaRugiController extends Controller
         $jns_aktiva='D';
         $jns_pasiva='B';
        //DB::enableQueryLog();
-        $pendapatan = DB::table('account as a')->selectRaw("id,kode,nama,header,$saldo")
+        $pendapatan = DB::table('account as a')->selectRaw("id,kode,nama,jenis,header,$saldo")
                         ->leftjoin('mut_saldo as m',function ($join) use ($thn) {
                             $join->on('m.cha','a.id')
                                  ->where('m.thn', $thn);
@@ -38,7 +38,7 @@ class LapLabaRugiController extends Controller
                 ->orderby('kode','asc')
                 ->get();
 
-        $biaya = DB::table('account as a')->selectRaw("id,kode,nama,header,$saldo")
+        $biaya = DB::table('account as a')->selectRaw("id,kode,nama,jenis,header,$saldo")
                         ->leftjoin('mut_saldo as m',function ($join) use ($thn) {
                             $join->on('m.cha','a.id')
                                  ->where('m.thn', $thn);

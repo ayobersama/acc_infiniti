@@ -252,6 +252,7 @@
                     } else  alert('Gagal');
                 },
                 error:function(data){
+                    console.log(data);
                     alert('Gagal menyimpan header');
                 },		     
             });
@@ -263,7 +264,7 @@
             if (lolos==true) {
                 $("#jns").val('i');
                 $("#bukti2").val(bukti);
-                $("#account").val("");
+                $("#account").val("").trigger('change');
                 $("#uraian").val("");
                 $("#nilai").val("");
                 $("#judul_modal").text("Tambah Jurnal");

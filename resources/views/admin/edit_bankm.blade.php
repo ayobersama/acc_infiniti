@@ -263,7 +263,7 @@
             if (lolos==true) {
                 $("#jns").val('i');
                 $("#bukti2").val(bukti);
-                $("#account").val("");
+                $("#account").val("").trigger('change');
                 $("#uraian").val("");
                 $("#nilai").val("");
                 $("#judul_modal").text("Tambah Jurnal");
